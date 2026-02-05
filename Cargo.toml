@@ -1,0 +1,39 @@
+[package]
+name = "kiro-acp"
+version = "0.1.0"
+edition = "2021"
+description = "ACP adapter for Kiro CLI"
+license = "MIT"
+
+[[bin]]
+name = "kiro-acp"
+path = "src/main.rs"
+
+[dependencies]
+# 异步运行时
+tokio = { version = "1.40", features = ["full", "process"] }
+
+# JSON-RPC 和序列化
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# 异步 trait
+async-trait = "0.1"
+
+# 错误处理
+thiserror = "1.0"
+anyhow = "1.0"
+
+# 日志
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+# 异步通道
+async-channel = "2.0"
+futures = "0.3"
+
+# UUID 生成
+uuid = { version = "1.0", features = ["v4"] }
+
+[dev-dependencies]
+tokio-test = "0.4"
