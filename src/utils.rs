@@ -6,9 +6,7 @@ pub mod stream {
     use tokio::io::AsyncWriteExt;
 
     /// Convert a reader to an async reader
-    pub fn to_async_reader<R: Read + Send + 'static>(
-        sync_reader: R,
-    ) -> tokio::io::DuplexStream {
+    pub fn to_async_reader<R: Read + Send + 'static>(sync_reader: R) -> tokio::io::DuplexStream {
         let (mut writer, async_reader) = tokio::io::duplex(8192);
 
         tokio::task::spawn_blocking(move || {
