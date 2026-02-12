@@ -1,7 +1,6 @@
 //! Kiro ACP Agent Implementation
 
 use anyhow::Result;
-use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -164,7 +163,7 @@ impl KiroAgent {
         Ok(serde_json::json!({}))
     }
 
-    async fn handle_destroy(&self, params: Option<serde_json::Value>) -> Result<serde_json::Value> {
+    async fn handle_destroy(&self, _params: Option<serde_json::Value>) -> Result<serde_json::Value> {
         // 清理会话
         let mut bridge = self.bridge.lock().await;
         bridge.shutdown().await?;
@@ -176,7 +175,7 @@ impl KiroAgent {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AgentCapabilities {
     pub streaming: bool,
     pub tools: bool,
