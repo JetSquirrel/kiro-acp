@@ -1,10 +1,10 @@
 //! Kiro CLI Bridge - 与 Kiro CLI 子进程通信
 
-mod process;
 mod parser;
+mod process;
 
-pub use process::KiroProcess;
 pub use parser::OutputParser;
+pub use process::KiroProcess;
 
 use anyhow::Result;
 use std::path::PathBuf;
@@ -40,7 +40,9 @@ impl KiroBridge {
 
     /// 向 Kiro 发送消息并获取响应
     pub async fn send_message(&mut self, _session_id: &str, message: &str) -> Result<String> {
-        let process = self.process.as_mut()
+        let process = self
+            .process
+            .as_mut()
             .ok_or_else(|| anyhow::anyhow!("Kiro process not started"))?;
 
         process.send_input(message).await?;

@@ -26,10 +26,14 @@ impl KiroProcess {
             .stderr(Stdio::piped())
             .spawn()?;
 
-        let stdin = child.stdin.take()
+        let stdin = child
+            .stdin
+            .take()
             .ok_or_else(|| anyhow::anyhow!("Failed to capture stdin"))?;
 
-        let stdout = child.stdout.take()
+        let stdout = child
+            .stdout
+            .take()
             .ok_or_else(|| anyhow::anyhow!("Failed to capture stdout"))?;
 
         // 创建 stdout 读取通道

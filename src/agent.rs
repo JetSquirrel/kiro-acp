@@ -8,9 +8,9 @@ use tokio::sync::Mutex;
 
 use crate::bridge::KiroBridge;
 use crate::protocol::{
-    AcpConnection, InitializeRequest, InitializeResponse, NewSessionRequest,
-    NewSessionResponse, ConversationTurnRequest, ConversationTurnResponse,
-    JsonRpcMessage, JsonRpcRequest, JsonRpcResponse,
+    AcpConnection, ConversationTurnRequest, ConversationTurnResponse, InitializeRequest,
+    InitializeResponse, JsonRpcMessage, JsonRpcRequest, JsonRpcResponse, NewSessionRequest,
+    NewSessionResponse,
 };
 
 /// ACP Agent 状态
@@ -96,7 +96,10 @@ impl KiroAgent {
         }
     }
 
-    async fn handle_initialize(&self, params: Option<serde_json::Value>) -> Result<serde_json::Value> {
+    async fn handle_initialize(
+        &self,
+        params: Option<serde_json::Value>,
+    ) -> Result<serde_json::Value> {
         let _request: InitializeRequest = params
             .map(serde_json::from_value)
             .transpose()?
@@ -118,7 +121,10 @@ impl KiroAgent {
         Ok(serde_json::to_value(response)?)
     }
 
-    async fn handle_new_session(&self, params: Option<serde_json::Value>) -> Result<serde_json::Value> {
+    async fn handle_new_session(
+        &self,
+        params: Option<serde_json::Value>,
+    ) -> Result<serde_json::Value> {
         let request: NewSessionRequest = params
             .map(serde_json::from_value)
             .transpose()?
@@ -128,42 +134,53 @@ impl KiroAgent {
         let cwd = request.cwd.unwrap_or_else(|| ".".to_string());
 
         let mut state = self.state.lock().await;
-        state.sessions.insert(session_id.clone(), SessionInfo {
-            id: session_id.clone(),
-            cwd: cwd.clone(),
-        });
+        state.sessions.insert(
+            session_id.clone(),
+            SessionInfo {
+                id: session_id.clone(),
+                cwd: cwd.clone(),
+            },
+        );
 
         // 初始化 Kiro Bridge
         let mut bridge = self.bridge.lock().await;
         bridge.start_session(&cwd).await?;
 
-        let response = NewSessionResponse {
-            session_id,
-        };
+        let response = NewSessionResponse { session_id };
 
         Ok(serde_json::to_value(response)?)
     }
 
-    async fn handle_conversation_turn(&self, params: Option<serde_json::Value>) -> Result<serde_json::Value> {
-        let request: ConversationTurnRequest = serde_json::from_value(
-            params.ok_or_else(|| anyhow::anyhow!("Missing params"))?
-        )?;
+    async fn handle_conversation_turn(
+        &self,
+        params: Option<serde_json::Value>,
+    ) -> Result<serde_json::Value> {
+        let request: ConversationTurnRequest =
+            serde_json::from_value(params.ok_or_else(|| anyhow::anyhow!("Missing params"))?)?;
 
         let mut bridge = self.bridge.lock().await;
-        let response = bridge.send_message(&request.session_id, &request.message).await?;
+        let response = bridge
+            .send_message(&request.session_id, &request.message)
+            .await?;
 
         Ok(serde_json::to_value(ConversationTurnResponse {
             content: response,
         })?)
     }
 
-    async fn handle_cancel_turn(&self, _params: Option<serde_json::Value>) -> Result<serde_json::Value> {
+    async fn handle_cancel_turn(
+        &self,
+        _params: Option<serde_json::Value>,
+    ) -> Result<serde_json::Value> {
         let mut bridge = self.bridge.lock().await;
         bridge.cancel().await?;
         Ok(serde_json::json!({}))
     }
 
-    async fn handle_destroy(&self, _params: Option<serde_json::Value>) -> Result<serde_json::Value> {
+    async fn handle_destroy(
+        &self,
+        _params: Option<serde_json::Value>,
+    ) -> Result<serde_json::Value> {
         // 清理会话
         let mut bridge = self.bridge.lock().await;
         bridge.shutdown().await?;
