@@ -8,7 +8,6 @@ pub use parser::OutputParser;
 
 use anyhow::Result;
 use std::path::PathBuf;
-use tokio::process::Child;
 
 /// Kiro CLI 桥接器
 pub struct KiroBridge {

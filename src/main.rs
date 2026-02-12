@@ -2,7 +2,7 @@
 //!
 //! 此程序作为 Zed Editor 的外部 Agent，通过 stdin/stdout 进行 ACP 协议通信
 
-use std::io::{self, BufRead, Write};
+use std::io;
 use tracing_subscriber::EnvFilter;
 
 mod agent;
